@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flight-api/app/core"
+	v1 "flight-api/app/v1"
 	"fmt"
 	"io"
 	"log"
@@ -51,7 +53,7 @@ func main() {
 
 	router.NoRoute(func(c *gin.Context) {
 		r := fmt.Sprintf("%s%s Not Found", c.Request.Host, c.Request.URL)
-		c.JSON(http.StatusNotFound, gin.H{"code": http.StatusNotFound, "message": r, "success": false})
+		c.JSON(http.StatusNotFound, gin.H{"code": http.StatusNotFound, "error": r, "message": http.StatusText(http.StatusNotFound)})
 	})
 
 	router.GET("/", func(c *gin.Context) {
@@ -60,6 +62,8 @@ func main() {
 			"version": "1.0.0",
 		})
 	})
+
+	v1.Route(router)
 
 	port := os.Getenv("PORT")
 	router.Run(port)
