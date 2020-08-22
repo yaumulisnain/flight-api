@@ -7,9 +7,11 @@ Commands:
 endef
 
 run:
+	go mod vendor
 	go run main.go
 
 build:
+	go mod vendor
 	go build -o dist/flight-service
 
 start:
