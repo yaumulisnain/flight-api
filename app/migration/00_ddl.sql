@@ -1,0 +1,2 @@
+DROP DATABASE IF EXISTS db_flights;
+CREATE DATABASE db_flights;
