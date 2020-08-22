@@ -44,6 +44,9 @@ func main() {
 
 	gin.DefaultWriter = io.MultiWriter(logFile, os.Stdout)
 
+	core.InitDB()
+	defer core.GetDB().Close()
+
 	router := gin.Default()
 
 	router.NoRoute(func(c *gin.Context) {
