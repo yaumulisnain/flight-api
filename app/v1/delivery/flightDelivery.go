@@ -3,19 +3,21 @@ package delivery
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 
+	"flight-api/app/helper"
 	"flight-api/app/v1/models"
 	"flight-api/app/v1/usecase"
 )
 
 func GetFlightById(c *gin.Context) {
 	var (
-		user models.Flight
-		err  error
-		id   int64
+		flight models.Flight
+		err    error
+		id     int64
 	)
 	id, err = strconv.ParseInt(c.Params.ByName("id"), 10, 32)
 
@@ -28,7 +30,7 @@ func GetFlightById(c *gin.Context) {
 		return
 	}
 
-	user, err = usecase.GetFlightByID(int32(id))
+	flight, err = usecase.GetFlightByID(int32(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   err.Error(),
@@ -39,7 +41,7 @@ func GetFlightById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":    user,
+		"data":    flight,
 		"code":    http.StatusOK,
 		"message": http.StatusText(http.StatusOK),
 	})
@@ -47,13 +49,24 @@ func GetFlightById(c *gin.Context) {
 
 func GetFlights(c *gin.Context) {
 	var (
-		Flights []models.Flight
+		flights []models.Flight
 		err     error
 	)
 
-	//TODO: Use search query param
+	flightCodeParam := c.DefaultQuery("airline-code", "")
 
-	Flights, err = usecase.GetFlight()
+	if !helper.ValidationAirlineCode(flightCodeParam) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Airline Code is not valid",
+			"code":    http.StatusBadRequest,
+			"message": "Airline Code is required 2-3 alphabetical character",
+		})
+		return
+	}
+
+	flightCodeParam = strings.ToUpper(flightCodeParam)
+
+	flights, err = usecase.GetFlight(flightCodeParam)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   err.Error(),
@@ -64,7 +77,7 @@ func GetFlights(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":    Flights,
+		"flights": flights,
 		"code":    http.StatusOK,
 		"message": http.StatusText(http.StatusOK),
 	})
@@ -72,12 +85,12 @@ func GetFlights(c *gin.Context) {
 
 func CreateFlight(c *gin.Context) {
 	var (
-		Flight models.Flight
+		flight models.Flight
 		err    error
 	)
 
 	v := validator.New()
-	err = c.ShouldBindJSON(&Flight)
+	err = c.ShouldBindJSON(&flight)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -88,7 +101,7 @@ func CreateFlight(c *gin.Context) {
 		return
 	}
 
-	if err = v.Struct(Flight); err != nil {
+	if err = v.Struct(flight); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   err.Error(),
 			"code":    http.StatusBadRequest,
@@ -97,7 +110,7 @@ func CreateFlight(c *gin.Context) {
 		return
 	}
 
-	Flight, err = usecase.CreateFlight(Flight)
+	flight, err = usecase.CreateFlight(flight)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -109,7 +122,7 @@ func CreateFlight(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":    Flight,
+		"data":    flight,
 		"code":    http.StatusOK,
 		"message": http.StatusText(http.StatusOK),
 	})
@@ -118,7 +131,7 @@ func CreateFlight(c *gin.Context) {
 func UpdateFlight(c *gin.Context) {
 	var (
 		updateData map[string]interface{}
-		Flight     models.Flight
+		flight     models.Flight
 		err        error
 		id         int64
 	)
@@ -144,7 +157,7 @@ func UpdateFlight(c *gin.Context) {
 		return
 	}
 
-	Flight, err = usecase.UpdateFlight(int32(id), updateData)
+	flight, err = usecase.UpdateFlight(int32(id), updateData)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   err.Error(),
@@ -155,7 +168,7 @@ func UpdateFlight(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":    Flight,
+		"data":    flight,
 		"code":    http.StatusOK,
 		"message": http.StatusText(http.StatusOK),
 	})

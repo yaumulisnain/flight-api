@@ -18,13 +18,13 @@ func GetFlightByID(id int32) (models.Flight, error) {
 	return Flight, nil
 }
 
-func GetFlight() ([]models.Flight, error) {
+func GetFlight(flightCodeParam string) ([]models.Flight, error) {
 	var (
 		Flight []models.Flight
 		err    error
 	)
 
-	if Flight, err = repository.FetchFlight(); err != nil {
+	if Flight, err = repository.FetchFlight(flightCodeParam); err != nil {
 		return Flight, err
 	}
 

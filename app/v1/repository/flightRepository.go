@@ -4,12 +4,12 @@ import (
 	"flight-api/app/v1/models"
 )
 
-func FetchFlight() ([]models.Flight, error) {
+func FetchFlight(flightCodeParam string) ([]models.Flight, error) {
 	db := getDB()
 
 	var Flight []models.Flight
 
-	if err := db.Find(&Flight).Error; err != nil {
+	if err := db.Where("flight_number LIKE ?", flightCodeParam+"%").Find(&Flight).Error; err != nil {
 		return Flight, err
 	}
 
