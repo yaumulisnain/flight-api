@@ -41,20 +41,20 @@ This project using Makefile for simplify your commands.
 
 1. Run project
 ```
-make run
+$ make run
 ```
 
 2. Build project
 ```
-make build
+$ make build
 ```
 
 3. Run binary file
 ```
-make start
+$ make start
 ```
 
 4. Run Unit Test
 ```
-make test
+$ make test
 ```
