@@ -55,7 +55,7 @@ func GetFlights(c *gin.Context) {
 
 	flightCodeParam := c.DefaultQuery("airline-code", "")
 
-	if !helper.ValidationAirlineCode(flightCodeParam) {
+	if !helper.ValidationAirlineCode(flightCodeParam) && flightCodeParam != "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Airline Code is not valid",
 			"code":    http.StatusBadRequest,
